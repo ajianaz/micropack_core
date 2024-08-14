@@ -12,10 +12,10 @@ import 'package:dio/dio.dart';
 
 enum Method { POST, GET, PUT, DELETE, PATCH }
 
-class ApiService {
+class MicropackApiService {
   Dio? _dio;
 
-  Future<ApiService> init() async {
+  Future<MicropackApiService> init() async {
     logSys('Api Service Initialized - ${MicropackConfig.baseUrl}');
     _dio = Dio(
       BaseOptions(
