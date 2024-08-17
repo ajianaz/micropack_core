@@ -162,6 +162,8 @@ class MicropackApiService {
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.sendTimeout) {
         throw Exception('Request timeout');
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw Exception('Connection Error');
       } else if (e.error is SocketException) {
         throw Exception('No Internet Connection!');
       }
