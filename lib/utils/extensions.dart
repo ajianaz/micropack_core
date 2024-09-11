@@ -27,3 +27,9 @@ extension ColorExtension on String {
     }
   }
 }
+
+extension StringExtensions on String {
+  int? toInt() {
+    return int.tryParse(this);
+  }
+}
