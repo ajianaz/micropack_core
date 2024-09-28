@@ -47,7 +47,7 @@ class MicropackApiService {
           return handler.next(response);
         },
         onError: (err, handler) {
-          logSys('Error-> ${err}]');
+          logSys('Error-> $err]');
           logSys('Error[${err.response?.statusCode}]');
           return handler.next(err);
         },
@@ -60,7 +60,6 @@ class MicropackApiService {
     required bool isToken,
   }) async {
     final header = <String, dynamic>{'Content-Type': 'application/json'};
-    final token = await MicropackStorage.read(key: MicropackInit.boxToken);
 
     // Jika headers tidak null, tambahkan semua headers yang ada ke header baru
     if (headers != null) {
@@ -68,6 +67,7 @@ class MicropackApiService {
     }
 
     if (isToken) {
+      var token = await MicropackStorage.read(key: MicropackInit.boxToken);
       header['Authorization'] = 'Bearer $token';
     }
     return header;
