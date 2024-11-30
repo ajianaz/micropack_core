@@ -73,9 +73,9 @@ class MicropackApiService {
     return header;
   }
 
-  getGatewayKey(int unixtime, {isProd = true}) async {
+  getGatewayKey(int unixtime) async {
     var result = '';
-    if (isProd) {
+    if (MicropackInit.appFlavor == Flavor.production) {
       result = MicropackUtils.encryptHMAC(unixtime, MicropackInit.apiKey);
     } else {
       result = MicropackInit.apiDevKey;
@@ -83,15 +83,15 @@ class MicropackApiService {
     return result;
   }
 
-  Future<dynamic> request(
-      {required String url,
-      required Method method,
-      Map<String, dynamic>? headers,
-      Map<String, dynamic>? parameters,
-      FormData? formData,
-      bool isToken = true,
-      bool isCustomResponse = false,
-      bool isProd = true}) async {
+  Future<dynamic> request({
+    required String url,
+    required Method method,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? parameters,
+    FormData? formData,
+    bool isToken = true,
+    bool isCustomResponse = false,
+  }) async {
     Response response;
 
     final params = parameters ?? <String, dynamic>{};
@@ -101,8 +101,8 @@ class MicropackApiService {
     try {
       final unixTime = DateTime.now().millisecondsSinceEpoch;
       // Tambahkan gatewayKey ke header jika diperlukan
-      if (isProd) {
-        final gatewayKey = await getGatewayKey(unixTime, isProd: isProd);
+      if (MicropackInit.appFlavor == Flavor.production) {
+        final gatewayKey = await getGatewayKey(unixTime);
         header['gateway_key'] = gatewayKey;
         header['unixtime'] = unixTime.toString();
       } else {
