@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -6,6 +8,7 @@ import 'dart:developer' as d;
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:micropack_core/micropack_core.dart';
 
 logSys(String s) {
   if (kDebugMode) {
@@ -14,6 +17,15 @@ logSys(String s) {
 }
 
 class MicropackUtils {
+  static String getEnvironmentLabel() {
+    if (MicropackInit.appFlavor == Flavor.development)
+      return "Development Environment";
+    if (MicropackInit.appFlavor == Flavor.staging) return "Staging Environment";
+    if (MicropackInit.appFlavor == Flavor.production)
+      return "Production Environment";
+    return "Please, set Env";
+  }
+
   //Encyption for header needed
   static String encryptHMAC(int unixTime, String apiKey) {
     final currentDate = DateTime.now().toIso8601String().substring(0, 10);

@@ -9,7 +9,7 @@ class MicropackConfig {
 
   static final apiKey = MicropackInit.apiKey;
 
-  static Flavor appFlavor = Flavor.development;
+  static Flavor appFlavor = MicropackInit.appFlavor;
 
   static bool get isDevelopment {
     return appFlavor == Flavor.development;
