@@ -29,7 +29,7 @@ class MicropackUtils {
   }
 
   //Encyption for header needed
-  static String encryptHMAC(int unixTime, String apiKey) {
+  static Future<String> encryptHMAC(int unixTime, String apiKey) async {
     final currentDate = DateTime.now().toIso8601String().substring(0, 10);
     final combinedString = apiKey + currentDate;
 

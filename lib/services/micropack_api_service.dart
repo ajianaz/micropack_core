@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:micropack_core/config/micropack_config.dart';
 import 'package:micropack_core/config/micropack_init.dart';
 import 'package:micropack_core/utils/micropack_storage.dart';
@@ -75,8 +76,8 @@ class MicropackApiService {
 
   getGatewayKey(int unixtime) async {
     var result = '';
-    if (MicropackInit.appFlavor == Flavor.production) {
-      result = MicropackUtils.encryptHMAC(unixtime, MicropackInit.apiKey);
+    if (MicropackInit.appFlavor == Flavor.production || kReleaseMode) {
+      result = await MicropackUtils.encryptHMAC(unixtime, MicropackInit.apiKey);
     } else {
       result = MicropackInit.apiDevKey;
     }
