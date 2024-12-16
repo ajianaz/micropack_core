@@ -106,6 +106,7 @@ class MicropackApiService {
         final gatewayKey = await getGatewayKey(unixTime);
         header['gateway_key'] = gatewayKey;
         header['unixtime'] = unixTime.toString();
+        header['new_encrypt'] = true;
       } else {
         header['gateway_key'] = MicropackInit.apiDevKey;
         header['unixtime'] = unixTime.toString();

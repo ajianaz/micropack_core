@@ -11,10 +11,18 @@ import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:micropack_core/micropack_core.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter/material.dart';
 
 logSys(String s) {
   if (kDebugMode) {
     d.log(s);
+  }
+}
+
+void closeKeyboard(BuildContext context) {
+  FocusScopeNode currentFocus = FocusScope.of(context);
+  if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+    currentFocus.unfocus();
   }
 }
 
@@ -29,9 +37,15 @@ class MicropackUtils {
   }
 
   //Encyption for header needed
-  static Future<String> encryptHMAC(int unixTime, String apiKey) async {
-    final currentDate = getPartUnixTime(unixTime);
-    final combinedString = apiKey + currentDate;
+  static Future<String> encryptHMAC(int unixTime, String apiKey,
+      {bool isNewEncrypt = false}) async {
+    var currentDate = getPartUnixTime(unixTime);
+    var combinedString = apiKey + currentDate;
+
+    if (!isNewEncrypt) {
+      currentDate = DateTime.now().toIso8601String().substring(0, 10);
+      combinedString = apiKey + currentDate;
+    }
 
     final keyBytes = utf8.encode(combinedString); // convert key to bytes
     final plainBytes =
