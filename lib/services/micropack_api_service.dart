@@ -101,12 +101,13 @@ class MicropackApiService {
 
     try {
       final unixTime = DateTime.now().millisecondsSinceEpoch;
-      // Tambahkan gatewayKey ke header jika diperlukan
+      // Add gatewayKey to header if needed
       if (MicropackInit.appFlavor == Flavor.production) {
         final gatewayKey = await getGatewayKey(unixTime);
         header['gateway_key'] = gatewayKey;
         header['unixtime'] = unixTime.toString();
-        header['new_encrypt'] = true;
+        header['is_new_encrypt'] =
+            true; //Handle diff version if has new version (backend add condition)
       } else {
         header['gateway_key'] = MicropackInit.apiDevKey;
         header['unixtime'] = unixTime.toString();
