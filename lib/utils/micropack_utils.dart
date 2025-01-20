@@ -37,9 +37,17 @@ class MicropackUtils {
   }
 
   //Encyption for header needed
-  static Future<String> encryptHMAC(int unixTime, String apiKey) async {
+  static Future<String> encryptHMAC(int unixTime, String apiKey,
+      {bool isNewEncrypt = false}) async {
     var currentDate = getPartUnixTime(unixTime);
     var combinedString = apiKey + currentDate;
+    logSys("PartUnixTime $currentDate");
+
+    if (!isNewEncrypt) {
+      currentDate = DateTime.now().toIso8601String().substring(0, 10);
+      combinedString = apiKey + currentDate;
+      logSys("EKRIP LAMA JALAN");
+    }
 
     final keyBytes = utf8.encode(combinedString); // convert key to bytes
     final plainBytes =
