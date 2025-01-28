@@ -22,7 +22,6 @@ class StatusRequestModel<T> {
       case StatusRequest.ERROR:
         return StatusRequestModel.error(failure);
       case StatusRequest.NONE:
-      default:
         return StatusRequestModel.empty();
     }
   }
