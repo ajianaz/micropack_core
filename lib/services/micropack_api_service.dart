@@ -76,7 +76,9 @@ class MicropackApiService {
 
   getGatewayKey(int unixtime) async {
     var result = '';
-    if (MicropackInit.appFlavor == Flavor.production || kReleaseMode) {
+    if (MicropackInit.appFlavor == Flavor.production ||
+        MicropackInit.appFlavor == Flavor.staging ||
+        kReleaseMode) {
       result = await MicropackUtils.encryptHMAC(unixtime, MicropackInit.apiKey);
     } else {
       result = MicropackInit.apiDevKey;
@@ -103,6 +105,12 @@ class MicropackApiService {
       final unixTime = DateTime.now().millisecondsSinceEpoch;
       // Add gatewayKey to header if needed
       if (MicropackInit.appFlavor == Flavor.production) {
+        final gatewayKey = await getGatewayKey(unixTime);
+        header['gateway_key'] = gatewayKey;
+        header['unixtime'] = unixTime.toString();
+        header['is_new_encrypt'] =
+            true; //Handle diff version if has new version (backend add condition)
+      } else if (MicropackInit.appFlavor == Flavor.staging) {
         final gatewayKey = await getGatewayKey(unixTime);
         header['gateway_key'] = gatewayKey;
         header['unixtime'] = unixTime.toString();
