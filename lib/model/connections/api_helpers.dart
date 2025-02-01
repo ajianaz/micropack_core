@@ -17,6 +17,13 @@ FailureModel toFailureModel(dynamic e, {String? message}) {
     return FailureModel(e.failure?.code ?? 400,
         message == null ? "${e.failure?.msgShow}" : "$message. $e", "$e");
   }
+
+  if (e is DefaultModel) {
+    return FailureModel(
+        e.statusCode ?? 400,
+        message == null ? "${e.message}" : "$message. ${e.message}",
+        "${e.error}");
+  }
   return FailureModel(400, message ?? "$e", "$e");
 }
 
@@ -73,6 +80,7 @@ StatusRequestModel<T> catchError<T>(Object e) {
     );
   } else {
     // Jika e bukan Map atau StatusRequestModel, kembalikan FailureModel default
+    logSys("ERROR SINI ");
     return StatusRequestModel<T>.error(toFailureModel(e));
   }
 }
