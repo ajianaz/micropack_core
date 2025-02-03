@@ -108,14 +108,10 @@ class MicropackApiService {
         final gatewayKey = await getGatewayKey(unixTime);
         header['gateway_key'] = gatewayKey;
         header['unixtime'] = unixTime.toString();
-        header['is_new_encrypt'] =
-            true; //Handle diff version if has new version (backend add condition)
       } else if (MicropackInit.appFlavor == Flavor.staging) {
         final gatewayKey = await getGatewayKey(unixTime);
         header['gateway_key'] = gatewayKey;
         header['unixtime'] = unixTime.toString();
-        header['is_new_encrypt'] =
-            true; //Handle diff version if has new version (backend add condition)
       } else {
         header['gateway_key'] = MicropackInit.apiDevKey;
         header['unixtime'] = unixTime.toString();
