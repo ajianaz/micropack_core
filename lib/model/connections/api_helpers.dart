@@ -51,6 +51,7 @@ DefaultModel toDefaultModel(dynamic response, {int statusCode = 200}) {
 
 StatusRequestModel<T> catchError<T>(Object e) {
   if (e is StatusRequestModel<dynamic>) {
+    logSys("CATCH ERROR Micropack : Unknown");
     return StatusRequestModel<T>.error(e.failure);
   } else if (e is Map<String, dynamic>) {
     // Jika e adalah Map (response dari API)
@@ -59,6 +60,7 @@ StatusRequestModel<T> catchError<T>(Object e) {
 
     // Handle khusus untuk statusCode 401
     if (statusCode == 401) {
+      logSys("CATCH ERROR Micropack : 401");
       // Panggil fungsi logout atau tindakan lain
       _logoutUser();
       return StatusRequestModel<T>.error(
@@ -70,6 +72,7 @@ StatusRequestModel<T> catchError<T>(Object e) {
       );
     }
 
+    logSys("CATCH ERROR Micropack : NOT 401");
     // Jika bukan 401, kembalikan FailureModel biasa
     return StatusRequestModel<T>.error(
       FailureModel(
@@ -79,8 +82,9 @@ StatusRequestModel<T> catchError<T>(Object e) {
       ),
     );
   } else {
+    //FROM else in api
     // Jika e bukan Map atau StatusRequestModel, kembalikan FailureModel default
-    logSys("ERROR SINI ");
+    logSys("CATCH ERROR Micropack ");
     return StatusRequestModel<T>.error(toFailureModel(e));
   }
 }
