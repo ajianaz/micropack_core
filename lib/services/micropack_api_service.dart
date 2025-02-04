@@ -76,7 +76,9 @@ class MicropackApiService {
 
   getGatewayKey(int unixtime) async {
     var result = '';
-    if (MicropackInit.appFlavor == Flavor.production || kReleaseMode) {
+    if (MicropackInit.appFlavor == Flavor.production ||
+        MicropackInit.appFlavor == Flavor.staging ||
+        kReleaseMode) {
       result = await MicropackUtils.encryptHMAC(unixtime, MicropackInit.apiKey);
     } else {
       result = MicropackInit.apiDevKey;
@@ -106,8 +108,10 @@ class MicropackApiService {
         final gatewayKey = await getGatewayKey(unixTime);
         header['gateway_key'] = gatewayKey;
         header['unixtime'] = unixTime.toString();
-        header['is_new_encrypt'] =
-            true; //Handle diff version if has new version (backend add condition)
+      } else if (MicropackInit.appFlavor == Flavor.staging) {
+        final gatewayKey = await getGatewayKey(unixTime);
+        header['gateway_key'] = gatewayKey;
+        header['unixtime'] = unixTime.toString();
       } else {
         header['gateway_key'] = MicropackInit.apiDevKey;
         header['unixtime'] = unixTime.toString();
@@ -137,7 +141,13 @@ class MicropackApiService {
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return response.data;
+        var result = {
+          "success": response.data["success"],
+          "statusCode": response.statusCode,
+          "data": response.data["data"],
+          "message": response.data["message"],
+        };
+        return result;
       } else if (response.statusCode == 401) {
         throw Exception('Unauthorized');
       } else if (response.statusCode == 500) {
@@ -156,7 +166,13 @@ class MicropackApiService {
         final response = e.response;
         try {
           if (response != null) {
-            return response.data;
+            var result = {
+              "success": response.data["success"],
+              "statusCode": e.response?.statusCode,
+              "data": response.data["data"],
+              "message": response.data["message"],
+            };
+            return result;
           }
         } catch (e) {
           throw Exception('Internal Error : $e');

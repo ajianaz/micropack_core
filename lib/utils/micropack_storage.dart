@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:micropack_core/micropack_core.dart';
+import '../micropack_core.dart';
 
 class MicropackStorage {
   static late FlutterSecureStorage _storage;
