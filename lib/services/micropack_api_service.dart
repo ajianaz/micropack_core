@@ -59,10 +59,10 @@ class MicropackApiService {
   static Future<Map<String, dynamic>> getHeader({
     Map<String, dynamic>? headers,
     required bool isToken,
+    bool useGatewayKey = true, // Option for dynamic gateway_key
   }) async {
     final header = <String, dynamic>{'Content-Type': 'application/json'};
 
-    // Jika headers tidak null, tambahkan semua headers yang ada ke header baru
     if (headers != null) {
       header.addAll(headers);
     }
@@ -71,6 +71,15 @@ class MicropackApiService {
       var token = await MicropackStorage.read(key: MicropackInit.boxToken);
       header['Authorization'] = 'Bearer $token';
     }
+
+    // Add gateway_key dynamically based on the option
+    if (useGatewayKey) {
+      final unixTime = DateTime.now().millisecondsSinceEpoch;
+      final gatewayKey = await getGatewayKey(unixTime);
+      header['gateway_key'] = gatewayKey;
+      header['unixtime'] = unixTime.toString();
+    }
+
     return header;
   }
 
@@ -94,29 +103,16 @@ class MicropackApiService {
     FormData? formData,
     bool isToken = true,
     bool isCustomResponse = false,
+    bool useGatewayKey = true, // Option for gateway_key
   }) async {
     Response response;
 
     final params = parameters ?? <String, dynamic>{};
 
-    final header = await getHeader(headers: headers, isToken: isToken);
+    final header = await getHeader(
+        headers: headers, isToken: isToken, useGatewayKey: useGatewayKey);
 
     try {
-      final unixTime = DateTime.now().millisecondsSinceEpoch;
-      // Add gatewayKey to header if needed
-      if (MicropackInit.appFlavor == Flavor.production) {
-        final gatewayKey = await getGatewayKey(unixTime);
-        header['gateway_key'] = gatewayKey;
-        header['unixtime'] = unixTime.toString();
-      } else if (MicropackInit.appFlavor == Flavor.staging) {
-        final gatewayKey = await getGatewayKey(unixTime);
-        header['gateway_key'] = gatewayKey;
-        header['unixtime'] = unixTime.toString();
-      } else {
-        header['gateway_key'] = MicropackInit.apiDevKey;
-        header['unixtime'] = unixTime.toString();
-      }
-
       if (_dio == null) {
         _dio = Dio(BaseOptions(
           baseUrl: MicropackConfig.baseUrl,
@@ -153,11 +149,11 @@ class MicropackApiService {
       } else if (response.statusCode == 500) {
         throw Exception('Server Error');
       } else {
-        throw Exception("Something does wen't wrong");
+        throw Exception("Something went wrong");
       }
     } on SocketException catch (e) {
       logSys(e.toString());
-      throw Exception('Not Internet Connection');
+      throw Exception('No Internet Connection');
     } on FormatException catch (e) {
       logSys(e.toString());
       throw Exception('Bad response format');
@@ -188,6 +184,192 @@ class MicropackApiService {
       }
     } catch (e) {
       rethrow;
+    }
+  }
+
+  static Future<void> getStreamData({
+    required String url,
+    Map<String, dynamic>? headers,
+    bool isToken = false,
+    bool useGatewayKey = false,
+  }) async {
+    final header = await getHeader(headers: headers, isToken: isToken);
+
+    // Add gateway key dan unix time if needed
+    if (useGatewayKey) {
+      final unixTime = DateTime.now().millisecondsSinceEpoch;
+      header['gateway_key'] = await getGatewayKey(unixTime);
+      header['unixtime'] = unixTime.toString();
+    }
+
+    try {
+      final dio = Dio();
+      final response = await dio.get(
+        url,
+        options: Options(
+          headers: header,
+          responseType: ResponseType.stream,
+        ),
+      );
+
+      // Mendapatkan data stream
+      final stream = response.data.stream;
+
+      // Proses stream data secara langsung
+      stream.listen(
+        (List<int> data) {
+          // Tangani setiap potongan data yang datang dari stream
+          logSys(
+              'Received data: ${String.fromCharCodes(data)}'); // Misalnya mencetak hasil stream
+        },
+        onDone: () {
+          logSys('Stream completed');
+        },
+        onError: (error) {
+          logSys('Error: $error');
+        },
+      );
+    } catch (e) {
+      logSys('Error while getting stream data: $e');
+      throw Exception('Error fetching stream data');
+    }
+  }
+
+  static Future<void> downloadFileStream({
+    required String url,
+    required String savePath,
+    Map<String, dynamic>? headers,
+    bool isToken = true,
+    bool useGatewayKey = true,
+  }) async {
+    final header = await getHeader(headers: headers, isToken: isToken);
+
+    // Menambahkan gateway key dan unix time jika diperlukan
+    if (useGatewayKey) {
+      final unixTime = DateTime.now().millisecondsSinceEpoch;
+      header['gateway_key'] = await getGatewayKey(unixTime);
+      header['unixtime'] = unixTime.toString();
+    }
+
+    try {
+      final dio = Dio();
+      final response = await dio.get(
+        url,
+        options: Options(
+          headers: header,
+          responseType: ResponseType.stream,
+        ),
+      );
+
+      final file = File(savePath);
+      final sink = file.openWrite();
+      await response.data.stream.listen(
+        (List<int> data) {
+          sink.add(data);
+        },
+        onDone: () async {
+          await sink.flush();
+          await sink.close();
+          logSys('File downloaded to $savePath');
+        },
+        onError: (error) {
+          logSys('Error downloading file stream: $error');
+        },
+      );
+    } catch (e) {
+      logSys('Error downloading file: $e');
+      throw Exception('Error downloading file');
+    }
+  }
+
+  static Future<Map<String, dynamic>> uploadFile({
+    required String url,
+    required String filePath,
+    required String filename,
+    Map<String, dynamic>? headers,
+    bool isToken = true,
+    bool useGatewayKey = true,
+  }) async {
+    final header = await getHeader(headers: headers, isToken: isToken);
+
+    // Menambahkan gateway key dan unix time jika diperlukan
+    if (useGatewayKey) {
+      final unixTime = DateTime.now().millisecondsSinceEpoch;
+      header['gateway_key'] = await getGatewayKey(unixTime);
+      header['unixtime'] = unixTime.toString();
+    }
+
+    try {
+      final dio = Dio();
+      final file = await MultipartFile.fromFile(filePath, filename: filename);
+      final formData = FormData.fromMap({
+        'file': file,
+      });
+
+      final response = await dio.post(
+        url,
+        data: formData,
+        options: Options(headers: header),
+        onSendProgress: (int sent, int total) {
+          if (total != -1) {
+            final progress = (sent / total * 100).toStringAsFixed(2);
+            logSys('Uploading: $progress%');
+          }
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var result = {
+          "success": response.data["success"],
+          "statusCode": response.statusCode,
+          "data": response.data["data"],
+          "message": response.data["message"],
+        };
+        return result;
+      } else {
+        throw Exception('Error during file upload');
+      }
+    } catch (e) {
+      logSys('Error uploading file: $e');
+      throw Exception('Error uploading file');
+    }
+  }
+
+  static Future<void> downloadFile({
+    required String url,
+    required String savePath,
+    Map<String, dynamic>? headers,
+    bool isToken = true,
+    bool useGatewayKey = true,
+  }) async {
+    final header = await getHeader(headers: headers, isToken: isToken);
+
+    // Menambahkan gateway key dan unix time jika diperlukan
+    if (useGatewayKey) {
+      final unixTime = DateTime.now().millisecondsSinceEpoch;
+      header['gateway_key'] = await getGatewayKey(unixTime);
+      header['unixtime'] = unixTime.toString();
+    }
+
+    try {
+      final dio = Dio();
+      final response = await dio.get(
+        url,
+        options: Options(
+          headers: header,
+          responseType: ResponseType.stream,
+        ),
+      );
+
+      final file = File(savePath);
+      final sink = file.openWrite();
+      await response.data.stream.pipe(sink);
+      await sink.flush();
+      await sink.close();
+      logSys('File downloaded to $savePath');
+    } catch (e) {
+      logSys('Error downloading file: $e');
+      throw Exception('Error downloading file');
     }
   }
 }
