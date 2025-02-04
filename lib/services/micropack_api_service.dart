@@ -14,7 +14,7 @@ import 'package:dio/dio.dart';
 enum Method { POST, GET, PUT, DELETE, PATCH }
 
 class MicropackApiService {
-  Dio? _dio;
+  static Dio? _dio;
 
   Future<MicropackApiService> init() async {
     logSys('Api Service Initialized - ${MicropackConfig.baseUrl}');
@@ -31,7 +31,7 @@ class MicropackApiService {
     return this;
   }
 
-  void initInterceptors() {
+  static void initInterceptors() {
     _dio?.interceptors.add(
       InterceptorsWrapper(
         onRequest: (requestOptions, handler) {
@@ -74,7 +74,7 @@ class MicropackApiService {
     return header;
   }
 
-  getGatewayKey(int unixtime) async {
+  static Future<String> getGatewayKey(int unixtime) async {
     var result = '';
     if (MicropackInit.appFlavor == Flavor.production ||
         MicropackInit.appFlavor == Flavor.staging ||
@@ -86,7 +86,7 @@ class MicropackApiService {
     return result;
   }
 
-  Future<dynamic> request({
+  static Future<dynamic> request({
     required String url,
     required Method method,
     Map<String, dynamic>? headers,
