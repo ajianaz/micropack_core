@@ -14,3 +14,8 @@ export 'utils/extensions.dart';
 export 'utils/micropack_asset.dart';
 export 'utils/micropack_storage.dart';
 export 'utils/micropack_utils.dart';
+
+export 'package:dio/dio.dart';
+export 'package:jwt_decoder/jwt_decoder.dart';
+export 'package:intl/intl.dart';
+export 'package:flutter_secure_storage/flutter_secure_storage.dart';
