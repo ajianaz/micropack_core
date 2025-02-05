@@ -1,6 +1,7 @@
 import 'micropack_config.dart';
 
 class MicropackInit {
+  // Setup fungsi untuk inisialisasi parameter aplikasi, termasuk logEnabled
   static setup({
     /// [REQUIRED] Setup base url Development
     required String urlDev,
@@ -28,7 +29,11 @@ class MicropackInit {
 
     /// [OPTIONAL] Setup base request timeout
     int? requestTimeout,
+
+    /// [OPTIONAL] Setup log enabled globally
+    bool logEnabled = true, // Default value is true (logging enabled)
   }) {
+    // Assign to static fields
     MicropackInit.urlDev = urlDev;
     urlStag != null
         ? MicropackInit.urlStag = urlStag
@@ -44,9 +49,12 @@ class MicropackInit {
 
     if (boxToken != null) MicropackInit.boxToken = boxToken;
     if (requestTimeout != null) MicropackInit.requestTimeout = requestTimeout;
+
+    // Set the global logging enabled flag
+    MicropackInit.logEnabled = logEnabled;
   }
 
-  // Setup Default values
+  // Default values
   static String urlDev = "http://localhost:3000";
   static String urlStag = "http://localhost:3000";
   static String urlProd = "http://localhost:3000";
@@ -60,4 +68,7 @@ class MicropackInit {
   static String boxToken = "token";
 
   static int requestTimeout = 60;
+
+  // Global logging enabled flag
+  static bool logEnabled = true;
 }

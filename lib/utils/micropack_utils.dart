@@ -7,14 +7,13 @@ import 'package:flutter/foundation.dart';
 import 'dart:developer' as d;
 
 import 'package:crypto/crypto.dart';
-import 'package:intl/intl.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:micropack_core/micropack_core.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter/material.dart';
 
+// for log system with option enable/disable
 logSys(String s) {
-  if (kDebugMode) {
+  if (MicropackInit.logEnabled && kDebugMode) {
     d.log(s);
   }
 }
