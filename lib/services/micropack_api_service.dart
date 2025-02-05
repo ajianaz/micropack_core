@@ -14,7 +14,7 @@ import 'package:dio/dio.dart';
 enum Method { POST, GET, PUT, DELETE, PATCH }
 
 class MicropackApiService {
-  static Dio? _dio;
+  Dio? _dio;
 
   Future<MicropackApiService> init() async {
     logSys('Api Service Initialized - ${MicropackConfig.baseUrl}');
@@ -31,7 +31,7 @@ class MicropackApiService {
     return this;
   }
 
-  static void initInterceptors() {
+  void initInterceptors() {
     _dio?.interceptors.add(
       InterceptorsWrapper(
         onRequest: (requestOptions, handler) {
@@ -56,7 +56,7 @@ class MicropackApiService {
     );
   }
 
-  static Future<Map<String, dynamic>> getHeader({
+  Future<Map<String, dynamic>> getHeader({
     Map<String, dynamic>? headers,
     required bool isToken,
     bool useGatewayKey = true, // Option for dynamic gateway_key
@@ -83,7 +83,7 @@ class MicropackApiService {
     return header;
   }
 
-  static Future<String> getGatewayKey(int unixtime) async {
+  Future<String> getGatewayKey(int unixtime) async {
     var result = '';
     if (MicropackInit.appFlavor == Flavor.production ||
         MicropackInit.appFlavor == Flavor.staging ||
@@ -95,7 +95,7 @@ class MicropackApiService {
     return result;
   }
 
-  static Future<dynamic> request({
+  Future<dynamic> request({
     required String url,
     required Method method,
     Map<String, dynamic>? headers,
@@ -187,7 +187,7 @@ class MicropackApiService {
     }
   }
 
-  static Future<void> getStreamData({
+  Future<void> getStreamData({
     required String url,
     Map<String, dynamic>? headers,
     bool isToken = false,
@@ -235,7 +235,7 @@ class MicropackApiService {
     }
   }
 
-  static Future<void> downloadFileStream({
+  Future<void> downloadFileStream({
     required String url,
     required String savePath,
     Map<String, dynamic>? headers,
@@ -282,7 +282,7 @@ class MicropackApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> uploadFile({
+  Future<Map<String, dynamic>> uploadFile({
     required String url,
     required String filePath,
     required String filename,
@@ -335,7 +335,7 @@ class MicropackApiService {
     }
   }
 
-  static Future<void> downloadFile({
+  Future<void> downloadFile({
     required String url,
     required String savePath,
     Map<String, dynamic>? headers,
