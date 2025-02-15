@@ -1,11 +1,11 @@
 name: micropack_core
-description: "A new Flutter package project."
+description: 'A new Flutter package project.'
 version: 0.0.1
-homepage: "https://github.com/ajianaz/micropack_core"
+homepage: 'https://github.com/ajianaz/micropack_core'
 
 environment:
-  sdk: ">=3.3.1 <4.0.0"
-  flutter: ">=1.17.0"
+  sdk: '>=3.3.1 <4.0.0'
+  flutter: '>=1.17.0'
 
 dependencies:
   flutter:
@@ -15,7 +15,6 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   intl: ^0.19.0
   jwt_decoder: ^2.0.1
-  flutter_image_compress: ^2.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

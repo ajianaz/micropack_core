@@ -1,14 +1,12 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'dart:developer' as d;
 
 import 'package:crypto/crypto.dart';
 import 'package:micropack_core/micropack_core.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter/material.dart';
 
 // for log system with option enable/disable
@@ -103,28 +101,28 @@ class MicropackUtils {
     }
   }
 
-  static convertToFile(XFile? xFile) {
-    if (xFile != null) {
-      var filePhoto = File(xFile.path);
-      return filePhoto;
-    }
-  }
+  // static convertToFile(XFile? xFile) {
+  //   if (xFile != null) {
+  //     var filePhoto = File(xFile.path);
+  //     return filePhoto;
+  //   }
+  // }
 
-  static Future<File> compressFile(File file, {int quality = 80}) async {
-    final filePath = file.absolute.path;
-    // Create output file path
-    // eg:- "Volume/VM/abcd_out.jpeg"
-    final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
-    final splitted = filePath.substring(0, (lastIndex));
-    final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
-    var result = await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path,
-      outPath,
-      quality: quality,
-    );
-    File resultFile = convertToFile(result);
-    logSys("Before Compress : ${file.size}");
-    logSys("After Compress : ${resultFile.size}");
-    return resultFile;
-  }
+  // static Future<File> compressFile(File file, {int quality = 80}) async {
+  //   final filePath = file.absolute.path;
+  //   // Create output file path
+  //   // eg:- "Volume/VM/abcd_out.jpeg"
+  //   final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
+  //   final splitted = filePath.substring(0, (lastIndex));
+  //   final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
+  //   var result = await FlutterImageCompress.compressAndGetFile(
+  //     file.absolute.path,
+  //     outPath,
+  //     quality: quality,
+  //   );
+  //   File resultFile = convertToFile(result);
+  //   logSys("Before Compress : ${file.size}");
+  //   logSys("After Compress : ${resultFile.size}");
+  //   return resultFile;
+  // }
 }

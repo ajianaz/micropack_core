@@ -1,16 +1,11 @@
 # This is a generated file; do not edit or check into version control.
-flutter_image_compress=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_image_compress-2.3.0/
-flutter_image_compress_common=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_image_compress_common-1.0.5/
-flutter_image_compress_macos=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_image_compress_macos-1.0.2/
-flutter_image_compress_ohos=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_image_compress_ohos-0.0.3/
-flutter_image_compress_web=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_image_compress_web-0.1.4+1/
-flutter_secure_storage=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.2/
-flutter_secure_storage_linux=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.1/
-flutter_secure_storage_macos=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_secure_storage_macos-3.1.2/
-flutter_secure_storage_web=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_secure_storage_web-1.2.1/
-flutter_secure_storage_windows=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/flutter_secure_storage_windows-3.1.2/
-path_provider=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/path_provider-2.1.4/
-path_provider_android=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/path_provider_android-2.2.4/
-path_provider_foundation=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.0/
-path_provider_linux=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
-path_provider_windows=/Users/mis-puragroup/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+flutter_secure_storage=/Users/ajianaz/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.2/
+flutter_secure_storage_linux=/Users/ajianaz/.pub-cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.1/
+flutter_secure_storage_macos=/Users/ajianaz/.pub-cache/hosted/pub.dev/flutter_secure_storage_macos-3.1.2/
+flutter_secure_storage_web=/Users/ajianaz/.pub-cache/hosted/pub.dev/flutter_secure_storage_web-1.2.1/
+flutter_secure_storage_windows=/Users/ajianaz/.pub-cache/hosted/pub.dev/flutter_secure_storage_windows-3.1.2/
+path_provider=/Users/ajianaz/.pub-cache/hosted/pub.dev/path_provider-2.1.4/
+path_provider_android=/Users/ajianaz/.pub-cache/hosted/pub.dev/path_provider_android-2.2.10/
+path_provider_foundation=/Users/ajianaz/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.0/
+path_provider_linux=/Users/ajianaz/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+path_provider_windows=/Users/ajianaz/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
