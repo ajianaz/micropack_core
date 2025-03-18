@@ -19,3 +19,5 @@ export 'package:dio/dio.dart';
 export 'package:jwt_decoder/jwt_decoder.dart';
 export 'package:intl/intl.dart';
 export 'package:flutter_secure_storage/flutter_secure_storage.dart';
+export 'package:image_picker/image_picker.dart';
+export 'package:flutter_image_compress/flutter_image_compress.dart';

@@ -1,7 +1,9 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 
 import 'dart:convert';
-
+import 'dart:io' show File; // Import hanya untuk platform non-web
+// import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'dart:developer' as d;
 
@@ -101,28 +103,43 @@ class MicropackUtils {
     }
   }
 
-  // static convertToFile(XFile? xFile) {
-  //   if (xFile != null) {
-  //     var filePhoto = File(xFile.path);
-  //     return filePhoto;
-  //   }
-  // }
+  static dynamic convertToFile(XFile? xFile) {
+    if (xFile == null) return null;
 
-  // static Future<File> compressFile(File file, {int quality = 80}) async {
-  //   final filePath = file.absolute.path;
-  //   // Create output file path
-  //   // eg:- "Volume/VM/abcd_out.jpeg"
-  //   final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
-  //   final splitted = filePath.substring(0, (lastIndex));
-  //   final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
-  //   var result = await FlutterImageCompress.compressAndGetFile(
-  //     file.absolute.path,
-  //     outPath,
-  //     quality: quality,
-  //   );
-  //   File resultFile = convertToFile(result);
-  //   logSys("Before Compress : ${file.size}");
-  //   logSys("After Compress : ${resultFile.size}");
-  //   return resultFile;
-  // }
+    if (kIsWeb) {
+      return xFile; // Kembalikan XFile untuk web (tidak bisa dikonversi ke File)
+    } else {
+      return File(xFile.path); // Konversi ke File untuk mobile/desktop
+    }
+  }
+
+  static Future<dynamic> compressFile(dynamic file, {int quality = 80}) async {
+    if (file == null) return null;
+
+    if (kIsWeb) {
+      // Web menggunakan fetch API untuk mendapatkan data blob
+      final XFile xFile = file as XFile;
+      final response = await http.get(Uri.parse(xFile.path));
+      Uint8List uint8List = response.bodyBytes;
+
+      // Tidak ada cara langsung untuk kompresi di web, jadi kita hanya return data asli
+      return uint8List;
+    } else {
+      // Mobile & Desktop menggunakan FlutterImageCompress
+      final filePath = file.absolute.path;
+      final lastIndex = filePath.lastIndexOf(RegExp(r'.jp'));
+      final outPath =
+          "${filePath.substring(0, lastIndex)}_compressed${filePath.substring(lastIndex)}";
+
+      var result = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        outPath,
+        quality: quality,
+      );
+
+      return result != null
+          ? File(result.path)
+          : file; // Jika gagal, return file asli
+    }
+  }
 }
