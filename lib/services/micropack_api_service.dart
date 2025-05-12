@@ -103,84 +103,100 @@ class MicropackApiService {
     FormData? formData,
     bool isToken = true,
     bool isCustomResponse = false,
-    bool useGatewayKey = true, // Option for gateway_key
+    bool useGatewayKey = true,
   }) async {
     Response response;
 
     final params = parameters ?? <String, dynamic>{};
-
     final header = await getHeader(
-        headers: headers, isToken: isToken, useGatewayKey: useGatewayKey);
+      headers: headers,
+      isToken: isToken,
+      useGatewayKey: useGatewayKey,
+    );
 
     try {
-      if (_dio == null) {
-        _dio = Dio(BaseOptions(
-          baseUrl: MicropackConfig.baseUrl,
-          headers: header,
-          connectTimeout: Duration(seconds: MicropackInit.requestTimeout),
-          receiveTimeout: Duration(seconds: MicropackInit.requestTimeout),
-          sendTimeout: Duration(seconds: MicropackInit.requestTimeout),
-        ));
-        initInterceptors();
+      final baseOptions = BaseOptions(
+        baseUrl: MicropackConfig.baseUrl,
+        headers: header,
+        connectTimeout: Duration(seconds: MicropackInit.requestTimeout),
+        receiveTimeout: Duration(seconds: MicropackInit.requestTimeout),
+        // Hanya aktifkan sendTimeout jika bukan Web atau jika data ada
+        // sendTimeout: (kIsWeb && (formData == null && parameters == null))
+        //     ? Duration.zero
+        //     : Duration(seconds: MicropackInit.requestTimeout),
+      );
+
+      _dio ??= Dio(baseOptions);
+      initInterceptors();
+
+      switch (method) {
+        case Method.POST:
+          response = await _dio!.post(
+            url,
+            data: formData ?? parameters,
+            options: Options(
+              sendTimeout: Duration(seconds: MicropackInit.requestTimeout),
+            ),
+          );
+          break;
+        case Method.PUT:
+          response = await _dio!.put(
+            url,
+            data: formData ?? parameters,
+            options: Options(
+              sendTimeout: Duration(seconds: MicropackInit.requestTimeout),
+            ),
+          );
+          break;
+        case Method.DELETE:
+          response = await _dio!.delete(url, queryParameters: params);
+          break;
+        case Method.PATCH:
+          response = await _dio!.patch(url);
+          break;
+        default:
+          response = await _dio!.get(url, queryParameters: params);
       }
 
-      if (method == Method.POST) {
-        response = await _dio!.post(url, data: formData ?? parameters);
-      } else if (method == Method.PUT) {
-        response = await _dio!.put(url, data: formData ?? parameters);
-      } else if (method == Method.DELETE) {
-        response = await _dio!.delete(url, queryParameters: params);
-      } else if (method == Method.PATCH) {
-        response = await _dio!.patch(url);
-      } else {
-        response = await _dio!.get(url, queryParameters: params);
-      }
+      final status = response.statusCode ?? 0;
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        var result = {
-          "success": response.data["success"],
-          "statusCode": response.statusCode,
-          "data": response.data["data"],
-          "message": response.data["message"],
-        };
-        return result;
-      } else if (response.statusCode == 401) {
+      if (status >= 200 && status < 300) {
+        final resData = response.data;
+        return resData;
+      } else if (status == 401) {
         throw Exception('Unauthorized');
-      } else if (response.statusCode == 500) {
+      } else if (status == 500) {
         throw Exception('Server Error');
       } else {
-        throw Exception("Something went wrong");
+        throw Exception("Unexpected status code: $status");
       }
-    } on SocketException catch (e) {
-      logSys(e.toString());
+    } on SocketException {
       throw Exception('No Internet Connection');
-    } on FormatException catch (e) {
-      logSys(e.toString());
+    } on FormatException {
       throw Exception('Bad response format');
     } on DioException catch (e) {
       if (e.type == DioExceptionType.badResponse) {
-        final response = e.response;
-        try {
-          if (response != null) {
-            var result = {
-              "success": response.data["success"],
-              "statusCode": e.response?.statusCode,
-              "data": response.data["data"],
-              "message": response.data["message"],
-            };
-            return result;
-          }
-        } catch (e) {
-          throw Exception('Internal Error : $e');
+        final res = e.response;
+        if (res?.data is Map) {
+          return {
+            "success": false,
+            "statusCode": res?.statusCode,
+            "data": res?.data['data'],
+            "message": res?.data['message'],
+          };
         }
-      } else if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout ||
-          e.type == DioExceptionType.sendTimeout) {
+        throw Exception('Bad response: ${res?.statusCode}');
+      } else if ([
+        DioExceptionType.connectionTimeout,
+        DioExceptionType.receiveTimeout,
+        DioExceptionType.sendTimeout,
+      ].contains(e.type)) {
         throw Exception('Request timeout');
-      } else if (e.type == DioExceptionType.connectionError) {
+      } else if (e.type == DioExceptionType.connectionError ||
+          e.error is SocketException) {
         throw Exception('Connection Error');
-      } else if (e.error is SocketException) {
-        throw Exception('No Internet Connection!');
+      } else {
+        rethrow;
       }
     } catch (e) {
       rethrow;
@@ -206,10 +222,7 @@ class MicropackApiService {
       final dio = Dio();
       final response = await dio.get(
         url,
-        options: Options(
-          headers: header,
-          responseType: ResponseType.stream,
-        ),
+        options: Options(headers: header, responseType: ResponseType.stream),
       );
 
       // Mendapatkan data stream
@@ -220,7 +233,8 @@ class MicropackApiService {
         (List<int> data) {
           // Tangani setiap potongan data yang datang dari stream
           logSys(
-              'Received data: ${String.fromCharCodes(data)}'); // Misalnya mencetak hasil stream
+            'Received data: ${String.fromCharCodes(data)}',
+          ); // Misalnya mencetak hasil stream
         },
         onDone: () {
           logSys('Stream completed');
@@ -255,10 +269,7 @@ class MicropackApiService {
       final dio = Dio();
       final response = await dio.get(
         url,
-        options: Options(
-          headers: header,
-          responseType: ResponseType.stream,
-        ),
+        options: Options(headers: header, responseType: ResponseType.stream),
       );
 
       final file = File(savePath);
@@ -302,9 +313,7 @@ class MicropackApiService {
     try {
       final dio = Dio();
       final file = await MultipartFile.fromFile(filePath, filename: filename);
-      final formData = FormData.fromMap({
-        'file': file,
-      });
+      final formData = FormData.fromMap({'file': file});
 
       final response = await dio.post(
         url,
@@ -355,10 +364,7 @@ class MicropackApiService {
       final dio = Dio();
       final response = await dio.get(
         url,
-        options: Options(
-          headers: header,
-          responseType: ResponseType.stream,
-        ),
+        options: Options(headers: header, responseType: ResponseType.stream),
       );
 
       final file = File(savePath);
