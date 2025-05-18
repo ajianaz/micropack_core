@@ -33,6 +33,10 @@ class MicropackInit {
     /// [OPTIONAL] Setup log enabled globally
     bool logEnabled = true, // Default value is true (logging enabled)
   }) {
+    /* ───── Assertions for mandatory parameters (debug‑only) ───── */
+    assert(urlDev.isNotEmpty, 'Development URL must be set');
+    assert(appName.isNotEmpty, 'App name must be set');
+
     // Assign to static fields
     MicropackInit.urlDev = urlDev;
     urlStag != null

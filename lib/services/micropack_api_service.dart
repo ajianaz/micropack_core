@@ -98,6 +98,7 @@ class MicropackApiService {
   Future<dynamic> request({
     required String url,
     required Method method,
+    String? host,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? parameters,
     FormData? formData,
@@ -116,7 +117,7 @@ class MicropackApiService {
 
     try {
       final baseOptions = BaseOptions(
-        baseUrl: MicropackConfig.baseUrl,
+        baseUrl: host ?? MicropackConfig.baseUrl,
         headers: header,
         connectTimeout: Duration(seconds: MicropackInit.requestTimeout),
         receiveTimeout: Duration(seconds: MicropackInit.requestTimeout),
