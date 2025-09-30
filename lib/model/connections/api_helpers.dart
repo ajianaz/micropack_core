@@ -1,15 +1,98 @@
 import '../../micropack_core.dart';
 
+/// Mengubah kode HTTP & pesan mentah menjadi pesan yang mudah dipahami user.
+/// - message: pesan ramah pengguna (ID)
+/// - developerMessage: pesan asli dari server/exception untuk debugging
 FailureModel failure(int? code, DefaultModel model) {
+  // Pesan asli dari backend/exception (jika ada)
+  final raw = (model.message ?? '').trim();
+  final rawLower = raw.toLowerCase();
+
   String message;
+
   switch (code) {
-    case 401:
-      message = "Unauthorized";
+    // 2xx tidak dianggap failure, tapi kalau sampai sini jadikan generik
+    case 200:
+    case 201:
+      message = "Permintaan berhasil.";
       break;
+
+    // Client errors
+    case 400:
+      message = "Permintaan tidak valid. Cek kembali data yang dikirim.";
+      break;
+    case 401:
+      message = "Sesi berakhir atau tidak sah. Silakan login kembali.";
+      break;
+    case 403:
+      message = "Akses ditolak. Anda tidak memiliki izin untuk aksi ini.";
+      break;
+    case 404:
+      message = "Data tidak ditemukan.";
+      break;
+    case 408:
+      message = "Permintaan terlalu lama. Coba lagi.";
+      break;
+    case 409:
+      message = "Terjadi konflik data. Muat ulang lalu coba lagi.";
+      break;
+    case 413:
+      message = "Ukuran data terlalu besar. Kurangi ukuran file/data.";
+      break;
+    case 415:
+      message = "Tipe konten tidak didukung.";
+      break;
+    case 422:
+      message = "Data tidak dapat diproses. Periksa isian Anda.";
+      break;
+    case 429:
+      message = "Terlalu banyak permintaan. Coba lagi beberapa saat.";
+      break;
+
+    // Server errors
+    case 500:
+      message = "Terjadi gangguan pada server. Coba lagi nanti.";
+      break;
+    case 502:
+      message = "Server bermasalah (Bad Gateway). Coba lagi nanti.";
+      break;
+    case 503:
+      message = "Layanan sedang tidak tersedia. Coba lagi nanti.";
+      break;
+    case 504:
+      message = "Server tidak merespons (Gateway Timeout). Coba lagi.";
+      break;
+
+    // Tanpa kode / kode lain -> coba deteksi dari pesan mentah
     default:
-      message = model.message ?? "An Error Occurred";
+      // Heuristik dari pesan yang sering dilempar Dio di service Anda
+      if (rawLower.contains('no internet')) {
+        message = "Tidak ada koneksi internet. Periksa jaringan Anda.";
+      } else if (rawLower.contains('timeout')) {
+        message = "Koneksi lambat. Permintaan kedaluwarsa, coba lagi.";
+      } else if (rawLower.contains('connection error') ||
+          rawLower.contains('socket') ||
+          rawLower.contains('failed host') ||
+          rawLower.contains('connection refused')) {
+        message = "Gagal terhubung ke server. Periksa jaringan Anda.";
+      } else if (rawLower.contains('bad response format') ||
+          rawLower.contains('format')) {
+        message = "Format respons tidak sesuai. Coba lagi nanti.";
+      } else if (rawLower.contains('unauthorized')) {
+        message = "Sesi tidak valid. Silakan login kembali.";
+      } else if (rawLower.isNotEmpty) {
+        // Jika backend sudah memberi pesan yang jelas, gunakan itu
+        message = raw;
+      } else {
+        message = "Terjadi kesalahan. Coba lagi beberapa saat.";
+      }
   }
-  return FailureModel(code, message, message);
+
+  // Kembalikan FailureModel dengan:
+  // - code apa adanya (bisa null)
+  // - message ramah pengguna
+  // - developerMessage tetap membawa pesan asli (fallback ke message ramah)
+  return FailureModel(code, message, raw.isEmpty ? message : raw);
 }
 
 FailureModel toFailureModel(dynamic e, {String? message}) {
