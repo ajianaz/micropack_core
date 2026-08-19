@@ -112,18 +112,25 @@ FailureModel toFailureModel(dynamic e, {String? message}) {
 
 DefaultModel toDefaultModel(dynamic response, {int statusCode = 200}) {
   String message = "An Error Occurred";
-  message = response["message"] ?? message;
-  message = response["msg"] ?? message;
+  if (response is Map) {
+    message = response["message"] ?? message;
+    message = response["msg"] ?? message;
+  }
 
-  if (response == null) {
+  if (response is! Map<String, dynamic>) {
+    // Null / List / tipe lain — jangan cast paksa (crash
+    // "type 'Null' is not a subtype of Map<String, dynamic>").
+    // Anggap failure generik dengan payload aslinya dipertahankan.
     return DefaultModel(
       success: false,
       message: message,
-      error: response["error"] ?? "An Error Occurred",
-      statusCode: response["statusCode"] ?? statusCode,
+      error: "Format respons tidak valid",
+      statusCode: (response is Map && response["statusCode"] is int)
+          ? response["statusCode"] as int
+          : statusCode,
     );
   } else {
-    Map<String, dynamic> data = response as Map<String, dynamic>;
+    final Map<String, dynamic> data = response;
     data["success"] = data["success"] ?? false;
     data["message"] = message;
     data["data"] = data["data"];
