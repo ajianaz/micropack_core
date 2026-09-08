@@ -151,8 +151,11 @@ StatusRequestModel<T> catchError<T>(Object e) {
     // Handle khusus untuk statusCode 401
     if (statusCode == 401) {
       logSys("CATCH ERROR Micropack : 401");
-      // Panggil fungsi logout atau tindakan lain
-      _logoutUser();
+      // CATATAN: JANGAN hapus storage di sini. Dulu branch ini memanggil
+      // _logoutUser() -> MicropackStorage.deleteAll() yang menghapus
+      // refresh token yang masih valid secara diam-diam — user terlogout
+      // permanen padahal sesinya bisa dipulihkan lewat refresh token.
+      // Kebijakan logout/token sepenuhnya milik host app (TokenService).
       return StatusRequestModel<T>.error(
         FailureModel(
           statusCode,
@@ -179,8 +182,6 @@ StatusRequestModel<T> catchError<T>(Object e) {
   }
 }
 
-// Fungsi untuk logout
-void _logoutUser() {
-  // Implementasi logout di sini
-  MicropackStorage.deleteAll();
-}
+// (Fungsi _logoutUser yang dulu menghapus seluruh storage saat 401
+// sudah dihapus — perilaku wipe diam-diam itu berbahaya dan menghapus
+// refresh token yang masih valid. Logout adalah keputusan host app.)
